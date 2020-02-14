@@ -4,6 +4,9 @@
 
 void fenetre(uint8_t character_h,uint8_t character_v);
 void menu();
+void barre();
+void tir();
+void sleep(uint32_t n);
 void monstres();
 
 #endif /* FUNCTIONS_H_ */
