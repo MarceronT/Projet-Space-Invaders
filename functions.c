@@ -1,9 +1,21 @@
 #include "functions.h"
 #include "serial.h"
 #include "vt100.h"
+#define NB_MONSTRES (7)
+#define COOR (2)
 
+typedef struct
+{
+	uint8_t ligne1[NB_MONSTRES][COOR];
+	uint8_t ligne2[NB_MONSTRES][COOR];
+	uint8_t ligne3[NB_MONSTRES][COOR];
+} monstres_t;
+
+monstres_t monstre;
+monstres_t *pointeur = &monstre;
 uint8_t t = 38;
-uint8_t val_useless = 0;
+uint8_t val_sens = 0;
+uint8_t tab_tir[2];
 
 void fenetre(uint8_t character_h, uint8_t character_v)
 {
@@ -79,10 +91,10 @@ void barre()
 			vt100_move(t, 22);
 			serial_puts("/-|-\\");
 		}
-		if (touche == 'm')
-		{
-			tir();
-		}
+	}
+	if (touche == 'm')
+	{
+		tir();
 	}
 }
 uint8_t m;
@@ -95,8 +107,25 @@ void tir()
 		sleep(1);
 		vt100_move(t + 2, m);
 		serial_puts(" ");
+		tab_tir[0] = t + 2;
+		tab_tir[1] = m;
+		hit_box();
 	}
 }
+
+void hit_box()
+{
+	for (uint8_t i = 0; i < 7; i++)
+	{
+		if (pointeur->ligne1[i][0] == tab_tir[0]
+				&& pointeur->ligne1[i][1] == tab_tir[1])
+		{
+			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
+			serial_puts("     ");
+		}
+	}
+}
+
 void sleep(uint32_t n)
 {
 	/* boucle vide parcourue (n * 100000) fois*/
@@ -109,136 +138,127 @@ void sleep(uint32_t n)
 	} while (i <= max);
 }
 
+void ini_monstres()
+{
+	uint8_t val = 3;
+	/* Initialise ma ligne 1,2 et 3 de monstres */
+	for (uint8_t i = 0; i < 7; i++)
+	{
+		pointeur->ligne1[i][0] = val;
+//		pointeur->ligne3[i][0] = val;
+//		pointeur->ligne2[i][0] = val;
+		pointeur->ligne1[i][1] = 2;
+//		pointeur->ligne2[i][1] = 4;
+//		pointeur->ligne3[i][1] = 6;
+		vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
+		serial_puts("(-o-)");
+//		vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//		serial_puts("/-o-\\");
+//		vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//		serial_puts("(-o-)");
+		val += 10;
+	}
+}
+
 void monstres()
 {
-	typedef struct
-	{
-		uint8_t ligne1[7][2];
-		uint8_t ligne2[7][2];
-		uint8_t ligne3[7][2];
-	} monstres_t;
-	monstres_t monstre;
-	monstres_t *pointeur;
-	pointeur = &monstre;
-	uint8_t val = 3;
-	if (val_useless == 0)
-	{
-		/* Initialise ma ligne 1,2 et 3 de monstres */
-		for (uint8_t i = 0; i < 7; i++)
-		{
-			pointeur->ligne1[i][0] = val;
-			pointeur->ligne3[i][0] = val;
-			pointeur->ligne2[i][0] = val;
-			pointeur->ligne1[i][1] = 2;
-			pointeur->ligne2[i][1] = 4;
-			pointeur->ligne3[i][1] = 6;
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("(-o-)");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("/-o-\\");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("(-o-)");
-			val += 10;
-		}
-	}
-	val_useless = 1;
-
 	/* Déplacements des monstres vers la droite */
-	while (pointeur->ligne1[6][0] != 75)
+	if (pointeur->ligne1[6][0] < 75 && val_sens == 0)
 	{
-		barre();
 		for (uint8_t i = 0; i < 7; i++)
 		{
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("     ");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("     ");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("     ");
+//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//			serial_puts("     ");
+//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//			serial_puts("     ");
 			pointeur->ligne1[i][0] += 1;
-			pointeur->ligne2[i][0] += 1;
-			pointeur->ligne3[i][0] += 1;
-			sleep(4);
+//			pointeur->ligne2[i][0] += 1;
+//			pointeur->ligne3[i][0] += 1;
+
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("(-o-)");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("/-o-\\");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("(-o-)");
+//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//			serial_puts("/-o-\\");
+//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//			serial_puts("(-o-)");
 		}
 	}
-
 	/* Descente des monstres*/
 	if (pointeur->ligne1[6][0] == 75)
 	{
+		val_sens = 1;
 		for (uint8_t i = 0; i < 7; i++)
 		{
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("     ");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("     ");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("     ");
+//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//			serial_puts("     ");
+//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//			serial_puts("     ");
 			pointeur->ligne1[i][1] += 1;
-			pointeur->ligne2[i][1] += 1;
-			pointeur->ligne3[i][1] += 1;
-			sleep(4);
+//			pointeur->ligne2[i][1] += 1;
+//			pointeur->ligne3[i][1] += 1;
+
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("(-o-)");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("/-o-\\");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("(-o-)");
+//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//			serial_puts("/-o-\\");
+//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//			serial_puts("(-o-)");
 		}
 	}
 	/* Déplacements des monstres vers la gauche */
-	while (pointeur->ligne1[0][0] != 2)
+	if (pointeur->ligne1[0][0] > 2 && val_sens == 1)
 	{
-		barre();
 		for (uint8_t i = 0; i < 7; i++)
 		{
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("     ");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("     ");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("     ");
+//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//			serial_puts("     ");
+//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//			serial_puts("     ");
 			pointeur->ligne1[i][0] -= 1;
-			pointeur->ligne2[i][0] -= 1;
-			pointeur->ligne3[i][0] -= 1;
-			sleep(4);
+//			pointeur->ligne2[i][0] -= 1;
+//			pointeur->ligne3[i][0] -= 1;
+
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("(-o-)");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("/-o-\\");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("(-o-)");
+//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//			serial_puts("/-o-\\");
+//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//			serial_puts("(-o-)");
 		}
 	}
 	/* Descente des monstres*/
 	if (pointeur->ligne1[0][0] == 2)
 	{
+		val_sens = 0;
 		for (uint8_t i = 0; i < 7; i++)
 		{
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("     ");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("     ");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("     ");
+//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//			serial_puts("     ");
+//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//			serial_puts("     ");
 			pointeur->ligne1[i][1] += 1;
-			pointeur->ligne2[i][1] += 1;
-			pointeur->ligne3[i][1] += 1;
-			sleep(4);
+//			pointeur->ligne2[i][1] += 1;
+//			pointeur->ligne3[i][1] += 1;
+
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("(-o-)");
-			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-			serial_puts("/-o-\\");
-			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-			serial_puts("(-o-)");
+//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+//			serial_puts("/-o-\\");
+//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+//			serial_puts("(-o-)");
 		}
 	}
 }
-void end_game(){
+
+void end_game()
+{
 	vt100_clear_screen();
 }
