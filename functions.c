@@ -2,7 +2,7 @@
 #include "serial.h"
 #include "vt100.h"
 #define NB_MONSTRES (7)
-#define COOR (2)
+#define COOR (3)
 
 typedef struct
 {
@@ -117,11 +117,23 @@ void hit_box()
 {
 	for (uint8_t i = 0; i < 7; i++)
 	{
-		if (pointeur->ligne1[i][0] == tab_tir[0]
-				&& pointeur->ligne1[i][1] == tab_tir[1])
+		if (pointeur->ligne1[i][0] == tab_tir[0] && pointeur->ligne1[i][1] == tab_tir[1])
 		{
 			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 			serial_puts("     ");
+			pointeur->ligne1[i][2] = 0;
+		}
+		else if (pointeur->ligne2[i][0] == tab_tir[0] && pointeur->ligne2[i][1] == tab_tir[1])
+		{
+			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+			serial_puts("     ");
+			pointeur->ligne2[i][2] = 0;
+		}
+		else if (pointeur->ligne3[i][0] == tab_tir[0] && pointeur->ligne3[i][1] == tab_tir[1])
+		{
+			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+			serial_puts("     ");
+			pointeur->ligne3[i][2] = 0;
 		}
 	}
 }
@@ -138,125 +150,304 @@ void sleep(uint32_t n)
 	} while (i <= max);
 }
 
+static void one_monster_right(uint8_t num_monstre)
+{
+	if (pointeur->ligne1[num_monstre][2] == 1)
+	{
+		vt100_move(pointeur->ligne1[num_monstre][0],
+				pointeur->ligne1[num_monstre][1]);
+		serial_puts("     ");
+		pointeur->ligne1[num_monstre][0] += 1;
+		vt100_move(pointeur->ligne1[num_monstre][0],
+				pointeur->ligne1[num_monstre][1]);
+		serial_puts("(-o-)");
+	}
+}
+static void one_monster_left(uint8_t num_monstre)
+{
+	if (pointeur->ligne1[num_monstre][2] == 1)
+	{
+		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		serial_puts("     ");
+		pointeur->ligne1[num_monstre][0] -= 1;
+		vt100_move(pointeur->ligne1[num_monstre][0],
+				pointeur->ligne1[num_monstre][1]);
+		serial_puts("(-o-)");
+	}
+}
+
+static void one_monster_down_right(uint8_t num_monstre)
+{
+	if (pointeur->ligne1[num_monstre][2] == 1)
+	{
+		val_sens = 1;
+		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		serial_puts("     ");
+		pointeur->ligne1[num_monstre][1] += 1;
+		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		serial_puts("(-o-)");
+	}
+}
+
+static void one_monster_down_left(uint8_t num_monstre)
+{
+	if (pointeur->ligne1[num_monstre][2] == 1)
+	{
+		val_sens = 0;
+		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		serial_puts("     ");
+		pointeur->ligne1[num_monstre][1] += 1;
+		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		serial_puts("(-o-)");
+	}
+}
+
+
+void all_monster()
+{
+	/* Test est ce que monstre N°7 est vivant et n'a pas atteind la bordure droite */
+	if (pointeur->ligne1[6][0] < 75 && val_sens == 0 && pointeur->ligne1[6][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_right(i);
+		}
+		if (pointeur->ligne1[6][0] == 75)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_right(i);
+			}
+		}
+	}
+	/* Test est ce que monstre N°6 est vivant et n'a pas atteind la bordure droite */
+	else if (pointeur->ligne1[5][0] < 75 && val_sens == 0
+			&& pointeur->ligne1[5][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_right(i);
+		}
+		if (pointeur->ligne1[5][0] == 75)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_right(i);
+			}
+		}
+	}
+	/* Test est ce que monstre N°5 est vivant et n'a pas atteind la bordure droite */
+	else if (pointeur->ligne1[4][0] < 75 && val_sens == 0
+			&& pointeur->ligne1[4][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_right(i);
+		}
+		if (pointeur->ligne1[4][0] == 75)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_right(i);
+			}
+		}
+	}
+	/* Test est ce que monstre N°4 est vivant et n'a pas atteind la bordure droite */
+	else if (pointeur->ligne1[3][0] < 75 && val_sens == 0
+			&& pointeur->ligne1[3][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_right(i);
+		}
+		if (pointeur->ligne1[3][0] == 75)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_right(i);
+			}
+		}
+	}
+	/* Test est ce que monstre N°3 est vivant et n'a pas atteind la bordure droite */
+	else if (pointeur->ligne1[2][0] < 75 && val_sens == 0
+			&& pointeur->ligne1[2][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_right(i);
+		}
+		if (pointeur->ligne1[2][0] == 75)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_right(i);
+			}
+		}
+	}
+	/* Test est ce que monstre N°2 est vivant et n'a pas atteind la bordure droite */
+	else if (pointeur->ligne1[1][0] < 75 && val_sens == 0
+			&& pointeur->ligne1[1][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_right(i);
+		}
+		if (pointeur->ligne1[1][0] == 75)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_right(i);
+			}
+		}
+	}
+	/* Test est ce que monstre N°1 est vivant et n'a pas atteind la bordure droite */
+	else if (pointeur->ligne1[0][0] < 75 && val_sens == 0
+			&& pointeur->ligne1[0][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_right(i);
+		}
+		if (pointeur->ligne1[0][0] == 75)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_right(i);
+			}
+		}
+	}
+	/* Test est ce que monstre N°1 est vivant et n'a pas atteind la bordure gauche */
+	if (pointeur->ligne1[0][0] > 2 && val_sens == 1 && pointeur->ligne1[0][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_left(i);
+		}
+		if (pointeur->ligne1[0][0] == 2)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_left(i);
+			}
+		}
+	}
+	else if (pointeur->ligne1[1][0] > 2 && val_sens == 1 && pointeur->ligne1[1][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_left(i);
+		}
+		if (pointeur->ligne1[1][0] == 2)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_left(i);
+			}
+		}
+	}
+	else if (pointeur->ligne1[2][0] > 2 && val_sens == 1 && pointeur->ligne1[2][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_left(i);
+		}
+		if (pointeur->ligne1[2][0] == 2)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_left(i);
+			}
+		}
+	}
+	else if (pointeur->ligne1[3][0] > 2 && val_sens == 1 && pointeur->ligne1[3][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_left(i);
+		}
+		if (pointeur->ligne1[3][0] == 2)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_left(i);
+			}
+		}
+	}
+	else if (pointeur->ligne1[4][0] > 2 && val_sens == 1 && pointeur->ligne1[4][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_left(i);
+		}
+		if (pointeur->ligne1[4][0] == 2)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_left(i);
+			}
+		}
+	}
+	else if (pointeur->ligne1[5][0] > 2 && val_sens == 1 && pointeur->ligne1[5][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_left(i);
+		}
+		if (pointeur->ligne1[5][0] == 2)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_left(i);
+			}
+		}
+	}
+	else if (pointeur->ligne1[6][0] > 2 && val_sens == 1 && pointeur->ligne1[6][2] == 1)
+	{
+		for (uint8_t i = 0; i < 7; i++)
+		{
+			one_monster_left(i);
+		}
+		if (pointeur->ligne1[6][0] == 2)
+		{
+			for (uint8_t i = 0; i < 7; i++)
+			{
+				one_monster_down_left(i);
+			}
+		}
+	}
+}
+
 void ini_monstres()
 {
 	uint8_t val = 3;
 	/* Initialise ma ligne 1,2 et 3 de monstres */
 	for (uint8_t i = 0; i < 7; i++)
 	{
+		/* On met une abscisse de départ */
 		pointeur->ligne1[i][0] = val;
+		pointeur->ligne2[i][0] = val;
 //		pointeur->ligne3[i][0] = val;
-//		pointeur->ligne2[i][0] = val;
+
+		/* On met une ordonnée de départ */
 		pointeur->ligne1[i][1] = 2;
-//		pointeur->ligne2[i][1] = 4;
+		pointeur->ligne2[i][1] = 4;
 //		pointeur->ligne3[i][1] = 6;
+
+		/* On initialise les monstres VIVANT */
+		pointeur->ligne1[i][2] = 1;
+		pointeur->ligne2[i][2] = 1;
+		pointeur->ligne3[i][2] = 1;
+
 		vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
 		serial_puts("(-o-)");
-//		vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//		serial_puts("/-o-\\");
+		vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+		serial_puts("/-o-\\");
 //		vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
 //		serial_puts("(-o-)");
 		val += 10;
 	}
 }
 
-void monstres()
-{
-	/* Déplacements des monstres vers la droite */
-	if (pointeur->ligne1[6][0] < 75 && val_sens == 0)
-	{
-		for (uint8_t i = 0; i < 7; i++)
-		{
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("     ");
-//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//			serial_puts("     ");
-//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-//			serial_puts("     ");
-			pointeur->ligne1[i][0] += 1;
-//			pointeur->ligne2[i][0] += 1;
-//			pointeur->ligne3[i][0] += 1;
-
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("(-o-)");
-//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//			serial_puts("/-o-\\");
-//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-//			serial_puts("(-o-)");
-		}
-	}
-	/* Descente des monstres*/
-	if (pointeur->ligne1[6][0] == 75)
-	{
-		val_sens = 1;
-		for (uint8_t i = 0; i < 7; i++)
-		{
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("     ");
-//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//			serial_puts("     ");
-//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-//			serial_puts("     ");
-			pointeur->ligne1[i][1] += 1;
-//			pointeur->ligne2[i][1] += 1;
-//			pointeur->ligne3[i][1] += 1;
-
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("(-o-)");
-//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//			serial_puts("/-o-\\");
-//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-//			serial_puts("(-o-)");
-		}
-	}
-	/* Déplacements des monstres vers la gauche */
-	if (pointeur->ligne1[0][0] > 2 && val_sens == 1)
-	{
-		for (uint8_t i = 0; i < 7; i++)
-		{
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("     ");
-//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//			serial_puts("     ");
-//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-//			serial_puts("     ");
-			pointeur->ligne1[i][0] -= 1;
-//			pointeur->ligne2[i][0] -= 1;
-//			pointeur->ligne3[i][0] -= 1;
-
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("(-o-)");
-//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//			serial_puts("/-o-\\");
-//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-//			serial_puts("(-o-)");
-		}
-	}
-	/* Descente des monstres*/
-	if (pointeur->ligne1[0][0] == 2)
-	{
-		val_sens = 0;
-		for (uint8_t i = 0; i < 7; i++)
-		{
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("     ");
-//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//			serial_puts("     ");
-//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-//			serial_puts("     ");
-			pointeur->ligne1[i][1] += 1;
-//			pointeur->ligne2[i][1] += 1;
-//			pointeur->ligne3[i][1] += 1;
-
-			vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-			serial_puts("(-o-)");
-//			vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-//			serial_puts("/-o-\\");
-//			vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-//			serial_puts("(-o-)");
-		}
-	}
-}
 
 void end_game()
 {
