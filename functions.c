@@ -115,6 +115,17 @@ void barre(void)
 		tir();
 	}
 }
+//uint8_t val_monstre = 0;
+//void tir_monstre(void)
+//{
+//	if (pointeur->ligne3[3][2] == 1)
+//	{
+//		vt100_move(pointeur->ligne3[3][0], pointeur->ligne3[3][1]);
+//		serial_puts("î");
+//
+//	}
+//}
+
 static uint8_t m;
 void tir(void)
 {
@@ -163,95 +174,153 @@ uint8_t hit_box(void)
 			return val_touch;
 		}
 	}
+	for (uint8_t i = 0; i < 6; i++)
+	{
+		if (pointeur->bloc1[i][0] == tab_tir[0] && pointeur->bloc1[i][1] == tab_tir[1] && pointeur->bloc1[i][2] == 1)
+		{
+			vt100_move(pointeur->bloc1[i][0], pointeur->bloc1[i][1]);
+			serial_puts(" ");
+			pointeur->bloc1[i][2] = 0;
+			val_touch = 1;
+			return val_touch;
+		}
+		else if (pointeur->bloc2[i][0] == tab_tir[0] && pointeur->bloc2[i][1] == tab_tir[1] && pointeur->bloc2[i][2] == 1)
+		{
+			vt100_move(pointeur->bloc2[i][0], pointeur->bloc2[i][1]);
+			serial_puts(" ");
+			pointeur->bloc2[i][2] = 0;
+			val_touch = 1;
+			return val_touch;
+		}
+		else if (pointeur->bloc3[i][0] == tab_tir[0] && pointeur->bloc3[i][1] == tab_tir[1] && pointeur->bloc3[i][2] == 1)
+		{
+			vt100_move(pointeur->bloc3[i][0], pointeur->bloc3[i][1]);
+			serial_puts(" ");
+			pointeur->bloc3[i][2] = 0;
+			val_touch = 1;
+			return val_touch;
+		}
+		else if (pointeur->bloc4[i][0] == tab_tir[0] && pointeur->bloc4[i][1] == tab_tir[1] && pointeur->bloc4[i][2] == 1)
+		{
+			vt100_move(pointeur->bloc4[i][0], pointeur->bloc4[i][1]);
+			serial_puts(" ");
+			pointeur->bloc4[i][2] = 0;
+			val_touch = 1;
+			return val_touch;
+		}
+	}
 	return 0;
 }
 
-static void one_monster_right(uint8_t num_monstre)
+static void one_monster_right(uint8_t num_monstre,uint8_t num_lignes)
 {
-	if (pointeur->ligne1[num_monstre][2] == 1)
+	uint8_t *tab;
+	if (num_lignes == 1){
+		tab = pointeur->ligne1[num_monstre];
+	}
+	else if (num_lignes == 2){
+		tab = pointeur->ligne2[num_monstre];
+	}
+	else if (num_lignes == 3){
+		tab = pointeur->ligne3[num_monstre];
+	}
+	if (tab[2] == 1)
 	{
-		vt100_move(pointeur->ligne1[num_monstre][0],
-				pointeur->ligne1[num_monstre][1]);
+		vt100_move(tab[0],
+				tab[1]);
 		serial_puts("     ");
- 		pointeur->ligne1[num_monstre][0] += 1;
-		vt100_move(pointeur->ligne1[num_monstre][0],
-				pointeur->ligne1[num_monstre][1]);
+ 		tab[0] += 1;
+		vt100_move(tab[0],
+				tab[1]);
 		serial_puts("(-o-)");
 	}
 }
-static void one_monster_left(uint8_t num_monstre)
+static void one_monster_left(uint8_t num_monstre,uint8_t num_lignes)
 {
-	if (pointeur->ligne1[num_monstre][2] == 1)
+	uint8_t *tab;
+	if (num_lignes == 1){
+		tab = pointeur->ligne1[num_monstre];
+	}
+	else if (num_lignes == 2){
+		tab = pointeur->ligne2[num_monstre];
+	}
+	else if (num_lignes == 3){
+		tab = pointeur->ligne3[num_monstre];
+	}
+	if (tab[2] == 1)
 	{
-		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		vt100_move(tab[0],tab[1]);
 		serial_puts("     ");
-		pointeur->ligne1[num_monstre][0] -= 1;
-		vt100_move(pointeur->ligne1[num_monstre][0],
-				pointeur->ligne1[num_monstre][1]);
+		tab[0] -= 1;
+		vt100_move(tab[0],
+				tab[1]);
 		serial_puts("(-o-)");
 	}
 }
 
-static void one_monster_down_right(uint8_t num_monstre/*, uint8_t num_lignes*/)
+static void one_monster_down_right(uint8_t num_monstre, uint8_t num_lignes)
 {
-//	uint8_t *tab;
-//	if (num_lignes == 1){
-//		tab = pointeur->ligne1[num_monstre];
-//	}
-//	else if (num_lignes == 2){
-//		tab = pointeur->ligne2[num_monstre];
-//	}
-//	else if (num_lignes == 3){
-//		tab = pointeur->ligne3[num_monstre];
-//	}
-	if (pointeur->ligne1[num_monstre][2] == 1)
+	uint8_t *tab;
+	if (num_lignes == 1){
+		tab = pointeur->ligne1[num_monstre];
+	}
+	else if (num_lignes == 2){
+		tab = pointeur->ligne2[num_monstre];
+	}
+	else if (num_lignes == 3){
+		tab = pointeur->ligne3[num_monstre];
+	}
+	if (tab[2] == 1)
 	{
 		val_sens = 1;
-		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		vt100_move(tab[0],tab[1]);
 		serial_puts("     ");
-		pointeur->ligne1[num_monstre][1] += 1;
-		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		tab[1] += 1;
+		vt100_move(tab[0],tab[1]);
 		serial_puts("(-o-)");
 	}
 }
 
-static void one_monster_down_left(uint8_t num_monstre)
+static void one_monster_down_left(uint8_t num_monstre,uint8_t num_lignes)
 {
-	if (pointeur->ligne1[num_monstre][2] == 1)
+	uint8_t *tab;
+	if (num_lignes == 1){
+		tab = pointeur->ligne1[num_monstre];
+	}
+	else if (num_lignes == 2){
+		tab = pointeur->ligne2[num_monstre];
+	}
+	else if (num_lignes == 3){
+		tab = pointeur->ligne3[num_monstre];
+	}
+	if (tab[2] == 1)
 	{
 		val_sens = 0;
-		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		vt100_move(tab[0],tab[1]);
 		serial_puts("     ");
-		pointeur->ligne1[num_monstre][1] += 1;
-		vt100_move(pointeur->ligne1[num_monstre][0],pointeur->ligne1[num_monstre][1]);
+		tab[1] += 1;
+		vt100_move(tab[0],tab[1]);
 		serial_puts("(-o-)");
 	}
 }
 
-
+//  || (pointeur->ligne2[6][0] < 75 && val_sens == 0 && pointeur->ligne2[6][2] == 1) || (pointeur->ligne3[6][0] < 75 && val_sens == 0 && pointeur->ligne3[6][2] == 1)
 void all_monster(void)
 {
-//	if (num_lignes == 1){
-//		tab = pointeur->ligne1[num_monstre];
-//	}
-//	else if (num_lignes == 2){
-//		tab = pointeur->ligne2[num_monstre];
-//	}
-//	else if (num_lignes == 3){
-//		tab = pointeur->ligne3[num_monstre];
-//	}
 	/* Test est ce que monstre N°7 est vivant et n'a pas atteind la bordure droite */
-	if (pointeur->ligne1[6][0] < 75 && val_sens == 0 && pointeur->ligne1[6][2] == 1)
+	if ((pointeur->ligne1[6][0] < 75 && val_sens == 0 && pointeur->ligne1[6][2] == 1))
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_right(i);
+			one_monster_right(i,1);
+			one_monster_right(i,2);
 		}
 		if (pointeur->ligne1[6][0] == 75)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_right(i);
+				one_monster_down_right(i,1);
+				one_monster_down_right(i,2);
 			}
 		}
 	}
@@ -261,13 +330,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_right(i);
+			one_monster_right(i,1);
+			one_monster_right(i,2);
 		}
 		if (pointeur->ligne1[5][0] == 75)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_right(i);
+				one_monster_down_right(i,1);
+				one_monster_down_right(i,2);
 			}
 		}
 	}
@@ -277,13 +348,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_right(i);
+			one_monster_right(i,1);
+			one_monster_right(i,2);
 		}
 		if (pointeur->ligne1[4][0] == 75)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_right(i);
+				one_monster_down_right(i,1);
+				one_monster_down_right(i,2);
 			}
 		}
 	}
@@ -293,13 +366,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_right(i);
+			one_monster_right(i,1);
+			one_monster_right(i,2);
 		}
 		if (pointeur->ligne1[3][0] == 75)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_right(i);
+				one_monster_down_right(i,1);
+				one_monster_down_right(i,2);
 			}
 		}
 	}
@@ -309,13 +384,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_right(i);
+			one_monster_right(i,1);
+			one_monster_right(i,2);
 		}
 		if (pointeur->ligne1[2][0] == 75)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_right(i);
+				one_monster_down_right(i,1);
+				one_monster_down_right(i,2);
 			}
 		}
 	}
@@ -325,13 +402,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_right(i);
+			one_monster_right(i,1);
+			one_monster_right(i,2);
 		}
 		if (pointeur->ligne1[1][0] == 75)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_right(i);
+				one_monster_down_right(i,1);
+				one_monster_down_right(i,2);
 			}
 		}
 	}
@@ -341,13 +420,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_right(i);
+			one_monster_right(i,1);
+			one_monster_right(i,2);
 		}
 		if (pointeur->ligne1[0][0] == 75)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_right(i);
+				one_monster_down_right(i,1);
+				one_monster_down_right(i,2);
 			}
 		}
 	}
@@ -356,13 +437,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_left(i);
+			one_monster_left(i,1);
+			one_monster_left(i,2);
 		}
 		if (pointeur->ligne1[0][0] == 2)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_left(i);
+				one_monster_down_left(i,1);
+				one_monster_down_left(i,2);
 			}
 		}
 	}
@@ -370,13 +453,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_left(i);
+			one_monster_left(i,1);
+			one_monster_left(i,2);
 		}
 		if (pointeur->ligne1[1][0] == 2)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_left(i);
+				one_monster_down_left(i,1);
+				one_monster_down_left(i,2);
 			}
 		}
 	}
@@ -384,13 +469,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_left(i);
+			one_monster_left(i,1);
+			one_monster_left(i,2);
 		}
 		if (pointeur->ligne1[2][0] == 2)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_left(i);
+				one_monster_down_left(i,1);
+				one_monster_down_left(i,2);
 			}
 		}
 	}
@@ -398,13 +485,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_left(i);
+			one_monster_left(i,1);
+			one_monster_left(i,2);
 		}
 		if (pointeur->ligne1[3][0] == 2)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_left(i);
+				one_monster_down_left(i,1);
+				one_monster_down_left(i,2);
 			}
 		}
 	}
@@ -412,13 +501,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_left(i);
+			one_monster_left(i,1);
+			one_monster_left(i,2);
 		}
 		if (pointeur->ligne1[4][0] == 2)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_left(i);
+				one_monster_down_left(i,1);
+				one_monster_down_left(i,2);
 			}
 		}
 	}
@@ -426,13 +517,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_left(i);
+			one_monster_left(i,1);
+			one_monster_left(i,2);
 		}
 		if (pointeur->ligne1[5][0] == 2)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_left(i);
+				one_monster_down_left(i,1);
+				one_monster_down_left(i,2);
 			}
 		}
 	}
@@ -440,13 +533,15 @@ void all_monster(void)
 	{
 		for (uint8_t i = 0; i < 7; i++)
 		{
-			one_monster_left(i);
+			one_monster_left(i,1);
+			one_monster_left(i,2);
 		}
 		if (pointeur->ligne1[6][0] == 2)
 		{
 			for (uint8_t i = 0; i < 7; i++)
 			{
-				one_monster_down_left(i);
+				one_monster_down_left(i,1);
+				one_monster_down_left(i,2);
 			}
 		}
 	}
