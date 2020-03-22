@@ -28,10 +28,11 @@ monstres_t monstre;
 monstres_t *pointeur = &monstre;
 static uint8_t val_sens = 0;
 static uint8_t tab_tir[2];
-static uint8_t val_touch=0;
-uint8_t boucle=0;
+static uint8_t val_touch = 0;
+static uint8_t val_life = 0;
 
-void fenetre(uint8_t character_h, uint8_t character_v)
+/* Affichage de la fenêtre de jeu */
+void window(uint8_t character_h, uint8_t character_v)
 {
 	vt100_clear_screen();
 	unsigned char index;
@@ -48,6 +49,7 @@ void fenetre(uint8_t character_h, uint8_t character_v)
 	}
 }
 
+/* Affichage du menu */
 void menu(void)
 {
 	/* Encadrage */
@@ -75,17 +77,7 @@ void menu(void)
 	serial_puts("By Thomas");
 }
 
-void sleep(unsigned long n) {
-        /* boucle vide parcourue (n * 100000) fois*/
-        int i = 0;
-        unsigned long int max = n * 100000;
-        do {
-                /* Faire qqch de stupide qui prend du temps */
-                i++;
-        }
-        while(i <= max);
-}
-
+/* Initialisation et affichage de la vie */
 void ini_life(void)
 {
 	pointeur->vie[0] = 3;
@@ -94,22 +86,15 @@ void ini_life(void)
 	serial_puts("Life: 2");
 }
 
-void ini_barre(void)
+/* Initialisation des coordonnées du vaisseau */
+void ini_ship(void)
 {
 	pointeur->barre[0] = 38;
 	pointeur->barre[1] = 22;
 }
 
-void ini_tir_monstre(void)
-{
-	for(uint8_t i=0; i<7;i++){
-		pointeur->tir_monstre[i][0] = 0;
-		pointeur->tir_monstre[i][1] = 0;
-		pointeur->tir_monstre[i][2] = 0;
-	}
-}
-
-void ini_tir(void)
+/* Initialisation du tir de mon vaisseau */
+void ini_shot(void)
 {
 	/* Initialisation des coordonnées du tir et de l'état du tir */
 	pointeur->tir[0] = pointeur->barre[0];
@@ -117,14 +102,103 @@ void ini_tir(void)
 	pointeur->tir[2] = 0;
 }
 
+/* Initialisation des tirs de chaque monstres */
+void ini_shot_monster(void)
+{
+	/* Initialisation des coordonnées des tirs et de l'état des tirs */
+	for(uint8_t i=0; i<7;i++){
+		pointeur->tir_monstre[i][0] = 0;
+		pointeur->tir_monstre[i][1] = 0;
+		pointeur->tir_monstre[i][2] = 0;
+	}
+}
+
+/* Fonction d'initialisation de tous mes monstres */
+void ini_monster(void)
+{
+	uint8_t val = 3;
+	/* Initialise ma ligne 1,2 et 3 de monstres */
+	for (uint8_t i = 0; i < 7; i++)
+	{
+		/* On met une abscisse de départ */
+		pointeur->ligne1[i][0] = val;
+		pointeur->ligne2[i][0] = val;
+		pointeur->ligne3[i][0] = val;
+
+		/* On met une ordonnée de départ */
+		pointeur->ligne1[i][1] = 2;
+		pointeur->ligne2[i][1] = 4;
+		pointeur->ligne3[i][1] = 6;
+
+		/* On initialise les monstres VIVANT */
+		pointeur->ligne1[i][2] = 1;
+		pointeur->ligne2[i][2] = 1;
+		pointeur->ligne3[i][2] = 1;
+
+		/* Affichage de mes monstres */
+		vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
+		serial_puts("(-o-)");
+		vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
+		serial_puts("/-o-\\");
+		vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
+		serial_puts("(-o-)");
+		val += 10;
+	}
+}
+
+/* Fonction d'initialisation de tous mes blocs */
+void ini_blocs(void)
+{
+/* Initialisation du bloc 1 afin d'initialiser les autres */
+	pointeur->bloc1[0][0] = 9;
+	pointeur->bloc1[0][1] = 20;
+	pointeur->bloc1[1][0] = 13;
+	pointeur->bloc1[1][1] = 20;
+	pointeur->bloc1[2][0] = 10;
+	pointeur->bloc1[2][1] = 19;
+	pointeur->bloc1[3][0] = 11;
+	pointeur->bloc1[3][1] = 19;
+	pointeur->bloc1[4][0] = 12;
+	pointeur->bloc1[4][1] = 19;
+	pointeur->bloc1[5][0] = 11;
+	pointeur->bloc1[5][1] = 18;
+	for (uint8_t i = 0; i < 6; i++)
+	{
+/* Initialisation des coordonnées des blocs */
+		pointeur->bloc2[i][0] = pointeur->bloc1[i][0] + 20;
+		pointeur->bloc2[i][1] = pointeur->bloc1[i][1];
+		pointeur->bloc3[i][0] = pointeur->bloc2[i][0] + 20;
+		pointeur->bloc3[i][1] = pointeur->bloc2[i][1];
+		pointeur->bloc4[i][0] = pointeur->bloc3[i][0] + 20;
+		pointeur->bloc4[i][1] = pointeur->bloc3[i][1];
+/* Initialisation des blocs sur VIVANT */
+		pointeur->bloc1[i][2] = 1;
+		pointeur->bloc2[i][2] = 1;
+		pointeur->bloc3[i][2] = 1;
+		pointeur->bloc4[i][2] = 1;
+/* Affichage des blocs */
+		vt100_move(pointeur->bloc1[i][0], pointeur->bloc1[i][1]);
+		serial_puts("□");
+		vt100_move(pointeur->bloc2[i][0], pointeur->bloc2[i][1]);
+		serial_puts("□");
+		vt100_move(pointeur->bloc3[i][0], pointeur->bloc3[i][1]);
+		serial_puts("□");
+		vt100_move(pointeur->bloc4[i][0], pointeur->bloc4[i][1]);
+		serial_puts("□");
+	}
+}
+
 uint8_t life(void)
 {
-	if (pointeur->vie[0] == 2){
+	/* On utilise la variable val_life pour que notre programme passe qu'une fois dans les conditions */
+	if (pointeur->vie[0] == 2 && val_life == 0){
+		val_life = 1;
 		vt100_move(72, 23);
 		serial_puts("Life: 1");
 		return pointeur->vie[0];
 	}
-	else if (pointeur->vie[0] == 1){
+	else if (pointeur->vie[0] == 1 && val_life == 1){
+		val_life = 0;
 		vt100_move(72, 23);
 		serial_puts("Life: 0");
 		return pointeur->vie[0];
@@ -142,11 +216,11 @@ uint8_t life(void)
 			vt100_move(80, index);
 			serial_putchar(124);
 		}
-		vt100_move(37, 6);
+		vt100_move(35, 6);
 		serial_puts("TU AS PERDU");
-		vt100_move(34, 14);
+		vt100_move(32, 14);
 		serial_puts("Press any touch");
-		vt100_move(39, 12);
+		vt100_move(36, 12);
 		serial_puts("To RETRY");
 		while (serial_get_last_char() == -1)
 		{
@@ -156,36 +230,20 @@ uint8_t life(void)
 	return pointeur->vie[0];
 }
 
-uint8_t end(void)
-{
-	if (pointeur->fin[0] == 21)
-	{
-		vt100_clear_screen();
-		for (uint8_t index = 1; index < 80; index++)
-		{
-			vt100_move(index, 1);
-			serial_putchar(94);
-			vt100_move(index, 24);
-			serial_putchar(94);
-			vt100_move(1, index);
-			serial_putchar(124);
-			vt100_move(80, index);
-			serial_putchar(124);
-		}
-		vt100_move(37, 6);
-		serial_puts("TU AS GAGNE");
-		vt100_move(34, 14);
-		serial_puts("Press any touch");
-		vt100_move(39, 12);
-		serial_puts("To RETRY");
-		while (serial_get_last_char() == -1)
-		{
-		}
-		return pointeur->fin[0];
-	}
+/* Fonction d'attente */
+void sleep(unsigned long n) {
+        /* boucle vide parcourue (n * 100000) fois*/
+        int i = 0;
+        unsigned long int max = n * 100000;
+        do {
+                /* Faire qqch de stupide qui prend du temps */
+                i++;
+        }
+        while(i <= max);
 }
 
-void barre(void)
+/* Fonction de déplacement de mon vaisseau */
+void ship(void)
 {
 	uint8_t touche = serial_get_last_char();
 	vt100_move(pointeur->barre[0], pointeur->barre[1]);
@@ -216,133 +274,17 @@ void barre(void)
 			serial_puts("/-|-\\");
 		}
 	}
-	/* On appel la fonction tir si on appui sur la touche m ou si un tir est entrain d'être effectué */
-	if (touche == 'm' || pointeur->tir[2] == 1)
+	/* On appel la fonction tir si on appui sur la touche m */
+	if (touche == 'm')
 	{
-		tir();
+		/* On initialise le tir sur "En Cours" */
+		pointeur->tir[2] = 1;
+		/* On appel la fonction tir */
+		shot();
 	}
 }
 
-void tir_one_monstre(uint8_t num_monstre,uint8_t num_lignes)
-{
-	uint8_t *tab;
-	if (num_lignes == 1){
-		tab = pointeur->ligne1[num_monstre];
-	}
-	else if (num_lignes == 2){
-		tab = pointeur->ligne2[num_monstre];
-	}
-	else if (num_lignes == 3){
-		tab = pointeur->ligne3[num_monstre];
-	}
-	if (pointeur->tir_monstre[num_monstre][2] == 0)
-	{
-		pointeur->tir_monstre[num_monstre][0] = tab[0];
-		pointeur->tir_monstre[num_monstre][1] = tab[1]+1;
-	}
-	if (pointeur->tir_monstre[num_monstre][1] < 22)
-	{
-		pointeur->tir_monstre[num_monstre][2] = 1;
-		vt100_move(pointeur->tir_monstre[num_monstre][0]+2,pointeur->tir_monstre[num_monstre][1]);
-		serial_puts(" ");
-		pointeur->tir_monstre[num_monstre][1] += 1;
-		vt100_move(pointeur->tir_monstre[num_monstre][0]+2,pointeur->tir_monstre[num_monstre][1]);
-		serial_puts("|");
-		sleep(1);
-		hit_box_monstre();
-	}
-	else if (pointeur->tir_monstre[num_monstre][1] == 22)
-	{
-		pointeur->tir_monstre[num_monstre][2] = 0;
-		vt100_move(pointeur->tir_monstre[num_monstre][0]+2,pointeur->tir_monstre[num_monstre][1]);
-		serial_puts(" ");
-	}
-}
-
-void tir_all_monster(uint8_t num_monstre)
-{
-	if (pointeur->ligne3[num_monstre][2] == 1 || (pointeur->tir_monstre[num_monstre][2] == 1 && pointeur->ligne3[num_monstre][2] == 0))
-	{
-		tir_one_monstre(num_monstre,3);
-	}
-	else if (pointeur->ligne2[num_monstre][2] == 1 || (pointeur->tir_monstre[num_monstre][2] == 1 && pointeur->ligne2[num_monstre][2] == 0))
-	{
-		tir_one_monstre(num_monstre,2);
-	}
-	else if (pointeur->ligne1[num_monstre][2] == 1 || (pointeur->tir_monstre[num_monstre][2] == 1 && pointeur->ligne1[num_monstre][2] == 0))
-	{
-		tir_one_monstre(num_monstre,1);
-	}
-}
-
-void hit_box_monstre(void)
-{
-	for (uint8_t i = 0; i < 7; i++)
-	{
-		if ((pointeur->tir_monstre[i][0]+2 == pointeur->barre[0] || pointeur->tir_monstre[i][0]+2 == pointeur->barre[0]+1 || pointeur->tir_monstre[i][0]+2 == pointeur->barre[0]+2 || pointeur->tir_monstre[i][0]+2 == pointeur->barre[0]+3 || pointeur->tir_monstre[i][0]+2 == pointeur->barre[0]+4) && (pointeur->tir_monstre[i][1] == pointeur->barre[1]) && (pointeur->tir_monstre[i][2] == 1))
-		{
-			vt100_move(pointeur->tir_monstre[i][0]+2, pointeur->tir_monstre[i][1]);
-			serial_puts(" ");
-			vt100_move(pointeur->barre[0], pointeur->barre[1]);
-			serial_puts("     ");
-			pointeur->vie[0] -= 1;
-			pointeur->tir_monstre[i][2] = 0;
-		}
-		else if ((pointeur->tir_monstre[i][0]+2 == pointeur->tir[0]+2 && pointeur->tir_monstre[i][1] == pointeur->tir[1]) && pointeur->tir_monstre[i][2] == 1 && pointeur->tir[2] == 1)
-		{
-			vt100_move(pointeur->tir_monstre[i][0]+2, pointeur->tir_monstre[i][1]);
-			serial_puts(" ");
-			vt100_move(pointeur->tir[0]+2, pointeur->tir[1]);
-			serial_puts(" ");
-			pointeur->tir_monstre[i][2] = 0;
-			pointeur->tir[2] = 0;
-		}
-	}
-	for (uint8_t t = 0; t < 7; t++)
-	{
-		for (uint8_t i = 0; i < 6; i++)
-		{
-			if (pointeur->bloc1[i][0] == pointeur->tir_monstre[t][0]+2 && pointeur->bloc1[i][1] == pointeur->tir_monstre[t][1] && pointeur->bloc1[i][2] == 1)
-			{
-				vt100_move(pointeur->bloc1[i][0], pointeur->bloc1[i][1]);
-				serial_puts(" ");
-				vt100_move(pointeur->tir_monstre[t][0]+2, pointeur->tir_monstre[t][1]);
-				serial_puts(" ");
-				pointeur->bloc1[i][2] = 0;
-				pointeur->tir_monstre[t][2] = 0;
-			}
-			else if (pointeur->bloc2[i][0] == pointeur->tir_monstre[t][0]+2 && pointeur->bloc2[i][1] == pointeur->tir_monstre[t][1] && pointeur->bloc2[i][2] == 1)
-			{
-				vt100_move(pointeur->bloc2[i][0], pointeur->bloc2[i][1]);
-				serial_puts(" ");
-				vt100_move(pointeur->tir_monstre[t][0]+2, pointeur->tir_monstre[t][1]);
-				serial_puts(" ");
-				pointeur->bloc2[i][2] = 0;
-				pointeur->tir_monstre[t][2] = 0;
-			}
-			else if (pointeur->bloc3[i][0] == pointeur->tir_monstre[t][0]+2 && pointeur->bloc3[i][1] == pointeur->tir_monstre[t][1] && pointeur->bloc3[i][2] == 1)
-			{
-				vt100_move(pointeur->bloc3[i][0], pointeur->bloc3[i][1]);
-				serial_puts(" ");
-				vt100_move(pointeur->tir_monstre[t][0]+2, pointeur->tir_monstre[t][1]);
-				serial_puts(" ");
-				pointeur->bloc3[i][2] = 0;
-				pointeur->tir_monstre[t][2] = 0;
-			}
-			else if (pointeur->bloc4[i][0] == pointeur->tir_monstre[t][0]+2 && pointeur->bloc4[i][1] == pointeur->tir_monstre[t][1] && pointeur->bloc4[i][2] == 1)
-			{
-				vt100_move(pointeur->bloc4[i][0], pointeur->bloc4[i][1]);
-				serial_puts(" ");
-				vt100_move(pointeur->tir_monstre[t][0]+2, pointeur->tir_monstre[t][1]);
-				serial_puts(" ");
-				pointeur->bloc4[i][2] = 0;
-				pointeur->tir_monstre[t][2] = 0;
-			}
-		}
-	}
-}
-
-void tir(void)
+void shot(void)
 {
 	/* On récupére l'abscisse de la barre jusqu'à qu'un ennemi soit touché ou que le tir ait atteind ca limite */
 	if (pointeur->tir[2] == 0)
@@ -350,7 +292,7 @@ void tir(void)
 		pointeur->tir[0] = pointeur->barre[0];
 	}
 	/* Si le tir n'a pas atteind la bordure et si il a rien touché on le décale de 1 */
-	if (pointeur->tir[1] > 2 && val_touch == 0)
+	if (pointeur->tir[1] > 2 && pointeur->tir[2] == 1)
 	{
 		pointeur->tir[2] = 1;
 		vt100_move(pointeur->tir[0]+2,pointeur->tir[1]);
@@ -363,7 +305,7 @@ void tir(void)
 		tab_tir[1] = pointeur->tir[1];
 		hit_box();
 	}
-	/* Vérification si le tir a touché la bordure, si oui on remet l'ordonnée par défaut 21, l'abscisse redevient celle de la barre puis on déclare que le tir est fini  */
+	/* Vérification si le tir a touché la bordure, si oui on remet l'ordonnée et l'abscisse du vaisseau puis on déclare que le tir est fini  */
 	else if (pointeur->tir[1] == 2)
 	{
 		pointeur->tir[2] = 0;
@@ -371,14 +313,13 @@ void tir(void)
 		serial_puts(" ");
 		pointeur->tir[1] = 21;
 	}
-	/* Vérification si le tir a touché un ennemie, si oui on remet par défaut la var val_touch, on remet l'ordonnée par défaut 21 puis on déclare que le tir est fini */
+	/* Vérification si le tir a touché un ennemie, si oui on remet par défaut la var val_touch, on remet l'ordonnée du vaisseau puis on déclare que le tir est fini */
 	if (val_touch == 1){
 		val_touch = 0;
 		pointeur->tir[2] = 0;
 		pointeur->tir[1] = 21;
 	}
 }
-
 
 void hit_box(void)
 {
@@ -443,9 +384,11 @@ void hit_box(void)
 		}
 	}
 }
+
 /* Fonction de déplacement vers la droite d'un monstre */
 static void one_monster_right(uint8_t num_monstre,uint8_t num_lignes)
 {
+	/* On chosit quelles lignes de monstres on veut déplacer */
 	uint8_t *tab;
 	if (num_lignes == 1){
 		tab = pointeur->ligne1[num_monstre];
@@ -456,6 +399,7 @@ static void one_monster_right(uint8_t num_monstre,uint8_t num_lignes)
 	else if (num_lignes == 3){
 		tab = pointeur->ligne3[num_monstre];
 	}
+	/* On décale le monstre de 1 vers la droite si il est en vie */
 	if (tab[2] == 1)
 	{
 		vt100_move(tab[0],
@@ -470,6 +414,7 @@ static void one_monster_right(uint8_t num_monstre,uint8_t num_lignes)
 /* Fonction de déplacement vers la gauche d'un monstre */
 static void one_monster_left(uint8_t num_monstre,uint8_t num_lignes)
 {
+	/* On chosit quelles lignes de monstres on veut déplacer */
 	uint8_t *tab;
 	if (num_lignes == 1){
 		tab = pointeur->ligne1[num_monstre];
@@ -480,6 +425,7 @@ static void one_monster_left(uint8_t num_monstre,uint8_t num_lignes)
 	else if (num_lignes == 3){
 		tab = pointeur->ligne3[num_monstre];
 	}
+	/* On décale le monstre de 1 vers la gauche si il est en vie */
 	if (tab[2] == 1)
 	{
 		vt100_move(tab[0],tab[1]);
@@ -493,6 +439,7 @@ static void one_monster_left(uint8_t num_monstre,uint8_t num_lignes)
 /* Fonction de déplacement vers le bas lorsqu'un monstre a atteind la bordure droite */
 static void one_monster_down_right(uint8_t num_monstre, uint8_t num_lignes)
 {
+	/* On chosit quelles lignes de monstres on veut déplacer */
 	uint8_t *tab;
 	if (num_lignes == 1){
 		tab = pointeur->ligne1[num_monstre];
@@ -503,6 +450,7 @@ static void one_monster_down_right(uint8_t num_monstre, uint8_t num_lignes)
 	else if (num_lignes == 3){
 		tab = pointeur->ligne3[num_monstre];
 	}
+	/* On décale le monstre de 1 vers le bas si il est en vie */
 	if (tab[2] == 1)
 	{
 		val_sens = 1;
@@ -516,6 +464,7 @@ static void one_monster_down_right(uint8_t num_monstre, uint8_t num_lignes)
 /* Fonction de déplacement vers le bas lorsqu'un monstre a atteind la bordure gauche */
 static void one_monster_down_left(uint8_t num_monstre,uint8_t num_lignes)
 {
+	/* On chosit quelles lignes de monstres on veut déplacer */
 	uint8_t *tab;
 	if (num_lignes == 1){
 		tab = pointeur->ligne1[num_monstre];
@@ -526,6 +475,7 @@ static void one_monster_down_left(uint8_t num_monstre,uint8_t num_lignes)
 	else if (num_lignes == 3){
 		tab = pointeur->ligne3[num_monstre];
 	}
+	/* On décale le monstre de 1 vers le bas si il est en vie */
 	if (tab[2] == 1)
 	{
 		val_sens = 0;
@@ -542,6 +492,7 @@ void all_monster(void)
 	/* Test est ce que monstre N°7 est vivant et n'a pas atteind la bordure droite */
 	if ((pointeur->ligne1[6][0] < 75 && val_sens == 0 && pointeur->ligne1[6][2] == 1))
 	{
+		/* On les déplaces tous à droite si ils sont en vie */
 		for (uint8_t i = 0; i < 7; i++)
 		{
 			one_monster_right(i,1);
@@ -697,6 +648,7 @@ void all_monster(void)
 			}
 		}
 	}
+	/* Test est ce que monstre N°2 est vivant et n'a pas atteind la bordure gauche */
 	else if (pointeur->ligne1[1][0] > 2 && val_sens == 1 && pointeur->ligne1[1][2] == 1)
 	{
 		for (uint8_t i = 0; i < 7; i++)
@@ -715,6 +667,7 @@ void all_monster(void)
 			}
 		}
 	}
+	/* Test est ce que monstre N°3 est vivant et n'a pas atteind la bordure gauche */
 	else if (pointeur->ligne1[2][0] > 2 && val_sens == 1 && pointeur->ligne1[2][2] == 1)
 	{
 		for (uint8_t i = 0; i < 7; i++)
@@ -733,6 +686,7 @@ void all_monster(void)
 			}
 		}
 	}
+	/* Test est ce que monstre N°4 est vivant et n'a pas atteind la bordure gauche */
 	else if (pointeur->ligne1[3][0] > 2 && val_sens == 1 && pointeur->ligne1[3][2] == 1)
 	{
 		for (uint8_t i = 0; i < 7; i++)
@@ -751,6 +705,7 @@ void all_monster(void)
 			}
 		}
 	}
+	/* Test est ce que monstre N°5 est vivant et n'a pas atteind la bordure gauche */
 	else if (pointeur->ligne1[4][0] > 2 && val_sens == 1 && pointeur->ligne1[4][2] == 1)
 	{
 		for (uint8_t i = 0; i < 7; i++)
@@ -769,6 +724,7 @@ void all_monster(void)
 			}
 		}
 	}
+	/* Test est ce que monstre N°6 est vivant et n'a pas atteind la bordure gauche */
 	else if (pointeur->ligne1[5][0] > 2 && val_sens == 1 && pointeur->ligne1[5][2] == 1)
 	{
 		for (uint8_t i = 0; i < 7; i++)
@@ -787,6 +743,7 @@ void all_monster(void)
 			}
 		}
 	}
+	/* Test est ce que monstre N°7 est vivant et n'a pas atteind la bordure gauche */
 	else if (pointeur->ligne1[6][0] > 2 && val_sens == 1 && pointeur->ligne1[6][2] == 1)
 	{
 		for (uint8_t i = 0; i < 7; i++)
@@ -807,75 +764,161 @@ void all_monster(void)
 	}
 }
 
-/* Fonction d'initialisation de tous mes monstres */
-void ini_monstres(void)
+void shot_one_monster(uint8_t num_monstre,uint8_t num_lignes)
 {
-	uint8_t val = 3;
-	/* Initialise ma ligne 1,2 et 3 de monstres */
-	for (uint8_t i = 0; i < 7; i++)
+	/* On choisit quelle monstre on veut faire tirer */
+	uint8_t *tab;
+	if (num_lignes == 1){
+		tab = pointeur->ligne1[num_monstre];
+	}
+	else if (num_lignes == 2){
+		tab = pointeur->ligne2[num_monstre];
+	}
+	else if (num_lignes == 3){
+		tab = pointeur->ligne3[num_monstre];
+	}
+	/* On test si aucun tir n'est en cours et on attribut les coordonnées du monstre au tir et on le déclare sur "en cours"*/
+	if (pointeur->tir_monstre[num_monstre][2] == 0)
 	{
-		/* On met une abscisse de départ */
-		pointeur->ligne1[i][0] = val;
-		pointeur->ligne2[i][0] = val;
-		pointeur->ligne3[i][0] = val;
-
-		/* On met une ordonnée de départ */
-		pointeur->ligne1[i][1] = 2;
-		pointeur->ligne2[i][1] = 4;
-		pointeur->ligne3[i][1] = 6;
-
-		/* On initialise les monstres VIVANT */
-		pointeur->ligne1[i][2] = 1;
-		pointeur->ligne2[i][2] = 1;
-		pointeur->ligne3[i][2] = 1;
-
-		vt100_move(pointeur->ligne1[i][0], pointeur->ligne1[i][1]);
-		serial_puts("(-o-)");
-		vt100_move(pointeur->ligne2[i][0], pointeur->ligne2[i][1]);
-		serial_puts("/-o-\\");
-		vt100_move(pointeur->ligne3[i][0], pointeur->ligne3[i][1]);
-		serial_puts("(-o-)");
-		val += 10;
+		pointeur->tir_monstre[num_monstre][0] = tab[0];
+		pointeur->tir_monstre[num_monstre][1] = tab[1]+1;
+		pointeur->tir_monstre[num_monstre][2] = 1;
+	}
+	/* On prend les coordonnées du tir on ajoute 1 à l'ordonnée et on test la hit box*/
+	else if (pointeur->tir_monstre[num_monstre][1] < 22)
+	{
+		vt100_move(pointeur->tir_monstre[num_monstre][0]+2,pointeur->tir_monstre[num_monstre][1]);
+		serial_puts(" ");
+		pointeur->tir_monstre[num_monstre][1] += 1;
+		vt100_move(pointeur->tir_monstre[num_monstre][0]+2,pointeur->tir_monstre[num_monstre][1]);
+		serial_puts("|");
+		sleep(1);
+		hit_box_monster();
+	}
+	/* On test si le tir à touché la bordure si oui on déclare qu'il n'est plus en cours */
+	else if (pointeur->tir_monstre[num_monstre][1] == 22)
+	{
+		pointeur->tir_monstre[num_monstre][2] = 0;
+		vt100_move(pointeur->tir_monstre[num_monstre][0]+2,pointeur->tir_monstre[num_monstre][1]);
+		serial_puts(" ");
 	}
 }
-/* Fonction d'initialisation de tous mes blocs */
-void ini_blocs(void)
+
+void shot_all_monster(uint8_t num_monstre)
 {
-/* Initialisation du bloc 1 afin d'initialiser les autres */
-	pointeur->bloc1[0][0] = 9;
-	pointeur->bloc1[0][1] = 20;
-	pointeur->bloc1[1][0] = 13;
-	pointeur->bloc1[1][1] = 20;
-	pointeur->bloc1[2][0] = 10;
-	pointeur->bloc1[2][1] = 19;
-	pointeur->bloc1[3][0] = 11;
-	pointeur->bloc1[3][1] = 19;
-	pointeur->bloc1[4][0] = 12;
-	pointeur->bloc1[4][1] = 19;
-	pointeur->bloc1[5][0] = 11;
-	pointeur->bloc1[5][1] = 18;
-	for (uint8_t i = 0; i < 6; i++)
+	/* On test si l'un des monstres de la ligne 3 est vivant et on continue le tir si un monstre à déjà tiré et est mort pendant son tir */
+	if (pointeur->ligne3[num_monstre][2] == 1 || (pointeur->tir_monstre[num_monstre][2] == 1 && pointeur->ligne3[num_monstre][2] == 0))
 	{
-/* Initialisation des coordonnées des blocs */
-		pointeur->bloc2[i][0] = pointeur->bloc1[i][0] + 20;
-		pointeur->bloc2[i][1] = pointeur->bloc1[i][1];
-		pointeur->bloc3[i][0] = pointeur->bloc2[i][0] + 20;
-		pointeur->bloc3[i][1] = pointeur->bloc2[i][1];
-		pointeur->bloc4[i][0] = pointeur->bloc3[i][0] + 20;
-		pointeur->bloc4[i][1] = pointeur->bloc3[i][1];
-/* Initialisation des blocs sur VIVANT */
-		pointeur->bloc1[i][2] = 1;
-		pointeur->bloc2[i][2] = 1;
-		pointeur->bloc3[i][2] = 1;
-		pointeur->bloc4[i][2] = 1;
-/* Affichage des blocs */
-		vt100_move(pointeur->bloc1[i][0], pointeur->bloc1[i][1]);
-		serial_puts("□");
-		vt100_move(pointeur->bloc2[i][0], pointeur->bloc2[i][1]);
-		serial_puts("□");
-		vt100_move(pointeur->bloc3[i][0], pointeur->bloc3[i][1]);
-		serial_puts("□");
-		vt100_move(pointeur->bloc4[i][0], pointeur->bloc4[i][1]);
-		serial_puts("□");
+		shot_one_monster(num_monstre,3);
+	}
+	/* On test si l'un des monstres de la ligne 2 est vivant et on continue le tir si un monstre à déjà tiré et est mort pendant son tir */
+	else if (pointeur->ligne2[num_monstre][2] == 1 || (pointeur->tir_monstre[num_monstre][2] == 1 && pointeur->ligne2[num_monstre][2] == 0))
+	{
+		shot_one_monster(num_monstre,2);
+	}
+	/* On test si l'un des monstres de la ligne 1 est vivant et on continue le tir si un monstre à déjà tiré et est mort pendant son tir */
+	else if (pointeur->ligne1[num_monstre][2] == 1 || (pointeur->tir_monstre[num_monstre][2] == 1 && pointeur->ligne1[num_monstre][2] == 0))
+	{
+		shot_one_monster(num_monstre,1);
+	}
+}
+
+void hit_box_monster(void)
+{
+	/* On test si l'un des tirs des monstres touchent mon vaisseau */
+	for (uint8_t i = 0; i < 7; i++)
+	{
+		if ((pointeur->tir_monstre[i][0]+2 == pointeur->barre[0] || pointeur->tir_monstre[i][0]+2 == pointeur->barre[0]+1 || pointeur->tir_monstre[i][0]+2 == pointeur->barre[0]+2 || pointeur->tir_monstre[i][0]+2 == pointeur->barre[0]+3 || pointeur->tir_monstre[i][0]+2 == pointeur->barre[0]+4) && (pointeur->tir_monstre[i][1] == pointeur->barre[1]) && (pointeur->tir_monstre[i][2] == 1))
+		{
+			vt100_move(pointeur->tir_monstre[i][0]+2, pointeur->tir_monstre[i][1]);
+			serial_puts(" ");
+			vt100_move(pointeur->barre[0], pointeur->barre[1]);
+			serial_puts("     ");
+			pointeur->vie[0] -= 1;
+			pointeur->tir_monstre[i][2] = 0;
+		/* On test si les tirs des monstres touche le tir de mon vaisseau si oui on les effaces */
+		}
+		else if ((pointeur->tir_monstre[i][0]+2 == pointeur->tir[0]+2 && pointeur->tir_monstre[i][1] == pointeur->tir[1]) && pointeur->tir_monstre[i][2] == 1 && pointeur->tir[2] == 1)
+		{
+			vt100_move(pointeur->tir_monstre[i][0]+2, pointeur->tir_monstre[i][1]);
+			serial_puts(" ");
+			vt100_move(pointeur->tir[0]+2, pointeur->tir[1]);
+			serial_puts(" ");
+			pointeur->tir_monstre[i][2] = 0;
+			pointeur->tir[2] = 0;
+		}
+	}
+	/* On test si l'un des tirs des monstres touchent l'un des blocs */
+	for (uint8_t t = 0; t < 7; t++)
+	{
+		for (uint8_t i = 0; i < 6; i++)
+		{
+			if (pointeur->bloc1[i][0] == pointeur->tir_monstre[t][0]+2 && pointeur->bloc1[i][1] == pointeur->tir_monstre[t][1] && pointeur->bloc1[i][2] == 1)
+			{
+				vt100_move(pointeur->bloc1[i][0], pointeur->bloc1[i][1]);
+				serial_puts(" ");
+				vt100_move(pointeur->tir_monstre[t][0]+2, pointeur->tir_monstre[t][1]);
+				serial_puts(" ");
+				pointeur->bloc1[i][2] = 0;
+				pointeur->tir_monstre[t][2] = 0;
+			}
+			else if (pointeur->bloc2[i][0] == pointeur->tir_monstre[t][0]+2 && pointeur->bloc2[i][1] == pointeur->tir_monstre[t][1] && pointeur->bloc2[i][2] == 1)
+			{
+				vt100_move(pointeur->bloc2[i][0], pointeur->bloc2[i][1]);
+				serial_puts(" ");
+				vt100_move(pointeur->tir_monstre[t][0]+2, pointeur->tir_monstre[t][1]);
+				serial_puts(" ");
+				pointeur->bloc2[i][2] = 0;
+				pointeur->tir_monstre[t][2] = 0;
+			}
+			else if (pointeur->bloc3[i][0] == pointeur->tir_monstre[t][0]+2 && pointeur->bloc3[i][1] == pointeur->tir_monstre[t][1] && pointeur->bloc3[i][2] == 1)
+			{
+				vt100_move(pointeur->bloc3[i][0], pointeur->bloc3[i][1]);
+				serial_puts(" ");
+				vt100_move(pointeur->tir_monstre[t][0]+2, pointeur->tir_monstre[t][1]);
+				serial_puts(" ");
+				pointeur->bloc3[i][2] = 0;
+				pointeur->tir_monstre[t][2] = 0;
+			}
+			else if (pointeur->bloc4[i][0] == pointeur->tir_monstre[t][0]+2 && pointeur->bloc4[i][1] == pointeur->tir_monstre[t][1] && pointeur->bloc4[i][2] == 1)
+			{
+				vt100_move(pointeur->bloc4[i][0], pointeur->bloc4[i][1]);
+				serial_puts(" ");
+				vt100_move(pointeur->tir_monstre[t][0]+2, pointeur->tir_monstre[t][1]);
+				serial_puts(" ");
+				pointeur->bloc4[i][2] = 0;
+				pointeur->tir_monstre[t][2] = 0;
+			}
+		}
+	}
+}
+
+uint8_t end(void)
+{
+	/* On test si tous les monstres on été tués */
+	if (pointeur->fin[0] == 21)
+	{
+		vt100_clear_screen();
+		for (uint8_t index = 1; index < 80; index++)
+		{
+			vt100_move(index, 1);
+			serial_putchar(94);
+			vt100_move(index, 24);
+			serial_putchar(94);
+			vt100_move(1, index);
+			serial_putchar(124);
+			vt100_move(80, index);
+			serial_putchar(124);
+		}
+		vt100_move(37, 6);
+		serial_puts("TU AS GAGNE");
+		vt100_move(34, 14);
+		serial_puts("Press any touch");
+		vt100_move(39, 12);
+		serial_puts("To RETRY");
+		while (serial_get_last_char() == -1)
+		{
+		}
+		return pointeur->fin[0];
 	}
 }
