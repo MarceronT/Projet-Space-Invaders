@@ -109,7 +109,8 @@ int main(void)
 		boucle = (boucle+1)%151;
 		boucle_2 = (boucle_2+1)%201;
 		boucle_3 = (boucle_3+1)%26;
-		if (life() == 0 || end() == 21){
+		score();
+		if (life() == 0 || end() == 21 || end_2() == 0){
 			goto debut;
 		}
 	}
