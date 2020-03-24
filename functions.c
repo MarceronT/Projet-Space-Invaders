@@ -21,6 +21,7 @@ typedef struct
 	uint8_t tir[COOR_LIFE];
 	uint8_t tir_monstre[NB_MONSTRES][COOR_LIFE];
 	uint8_t vie[LIFE];
+	uint8_t score[1];
 	uint8_t fin[1];
 } monstres_t;
 
@@ -30,6 +31,7 @@ static uint8_t val_sens = 0;
 static uint8_t tab_tir[2];
 static uint8_t val_touch = 0;
 static uint8_t val_life = 0;
+static uint8_t val_score = 0;
 
 /* Affichage de la fenêtre de jeu */
 void window(uint8_t character_h, uint8_t character_v)
@@ -228,6 +230,116 @@ uint8_t life(void)
 		return pointeur->vie[0];
 	}
 	return pointeur->vie[0];
+}
+
+void score(void)
+{
+	/* Dès qu'un monstre meurt on ajoute 10 au score */
+	if (pointeur->fin[0] == 0 && val_score == 0){
+		val_score = 1;
+		vt100_move(1, 23);
+		serial_puts("Score: 0");
+	}
+	else if (pointeur->fin[0] == 1 && val_score == 1){
+		val_score = 2;
+		vt100_move(1, 23);
+		serial_puts("Score: 10");
+	}
+	else if (pointeur->fin[0] == 2 && val_score == 2){
+		val_score = 3;
+		vt100_move(1, 23);
+		serial_puts("Score: 20");
+	}
+	else if (pointeur->fin[0] == 3 && val_score == 3){
+		val_score = 4;
+		vt100_move(1, 23);
+		serial_puts("Score: 30");
+	}
+	else if (pointeur->fin[0] == 4 && val_score == 4){
+		val_score = 5;
+		vt100_move(1, 23);
+		serial_puts("Score: 40");
+	}
+	else if (pointeur->fin[0] == 5 && val_score == 5){
+		val_score = 6;
+		vt100_move(1, 23);
+		serial_puts("Score: 50");
+	}
+	else if (pointeur->fin[0] == 6 && val_score == 6){
+		val_score = 7;
+		vt100_move(1, 23);
+		serial_puts("Score: 60");
+	}
+	else if (pointeur->fin[0] == 7 && val_score == 7){
+		val_score = 8;
+		vt100_move(1, 23);
+		serial_puts("Score: 70");
+	}
+	else if (pointeur->fin[0] == 8 && val_score == 8){
+		val_score = 9;
+		vt100_move(1, 23);
+		serial_puts("Score: 80");
+	}
+	else if (pointeur->fin[0] == 9 && val_score == 9){
+		val_score = 10;
+		vt100_move(1, 23);
+		serial_puts("Score: 90");
+	}
+	else if (pointeur->fin[0] == 10 && val_score == 10){
+		val_score = 11;
+		vt100_move(1, 23);
+		serial_puts("Score: 100");
+	}
+	else if (pointeur->fin[0] == 11 && val_score == 11){
+		val_score = 12;
+		vt100_move(1, 23);
+		serial_puts("Score: 110");
+	}
+	else if (pointeur->fin[0] == 12 && val_score == 12){
+		val_score = 13;
+		vt100_move(1, 23);
+		serial_puts("Score: 120");
+	}
+	else if (pointeur->fin[0] == 13 && val_score == 13){
+		val_score = 14;
+		vt100_move(1, 23);
+		serial_puts("Score: 130");
+	}
+	else if (pointeur->fin[0] == 14 && val_score == 14){
+		val_score = 15;
+		vt100_move(1, 23);
+		serial_puts("Score: 140");
+	}
+	else if (pointeur->fin[0] == 15 && val_score == 15){
+		val_score = 16;
+		vt100_move(1, 23);
+		serial_puts("Score: 150");
+	}
+	else if (pointeur->fin[0] == 16 && val_score == 16){
+		val_score = 17;
+		vt100_move(1, 23);
+		serial_puts("Score: 160");
+	}
+	else if (pointeur->fin[0] == 17 && val_score == 17){
+		val_score = 18;
+		vt100_move(1, 23);
+		serial_puts("Score: 170");
+	}
+	else if (pointeur->fin[0] == 18 && val_score == 18){
+		val_score = 19;
+		vt100_move(1, 23);
+		serial_puts("Score: 180");
+	}
+	else if (pointeur->fin[0] == 19 && val_score == 19){
+		val_score = 20;
+		vt100_move(1, 23);
+		serial_puts("Score: 190");
+	}
+	else if (pointeur->fin[0] == 20 && val_score == 20){
+		val_score = 0;
+		vt100_move(1, 23);
+		serial_puts("Score: 200");
+	}
 }
 
 /* Fonction d'attente */
@@ -920,5 +1032,89 @@ uint8_t end(void)
 		{
 		}
 		return pointeur->fin[0];
+	}
+}
+
+uint8_t end_2 (void)
+{
+	/* On test si l'un des monstres de la ligne 3 à la même ordonnée que notre vaisseau, si oui c'est la fin du jeu */
+	for (uint8_t i = 0; i < 7; i++){
+		if (pointeur->ligne3[i][1] == pointeur->barre[1] && pointeur->ligne3[i][2] == 1)
+		{
+			vt100_clear_screen();
+			for (uint8_t index = 1; index < 80; index++)
+			{
+				vt100_move(index, 1);
+				serial_putchar(94);
+				vt100_move(index, 24);
+				serial_putchar(94);
+				vt100_move(1, index);
+				serial_putchar(124);
+				vt100_move(80, index);
+				serial_putchar(124);
+			}
+			vt100_move(37, 6);
+			serial_puts("TU AS PERDU");
+			vt100_move(34, 14);
+			serial_puts("Press any touch");
+			vt100_move(39, 12);
+			serial_puts("To RETRY");
+			while (serial_get_last_char() == -1)
+			{
+			}
+			return 0;
+		}
+		/* On test si l'un des monstres de la ligne 2 à la même ordonnée que notre vaisseau, si oui c'est la fin du jeu */
+		else if (pointeur->ligne2[i][1] == pointeur->barre[1] && pointeur->ligne2[i][2] == 1)
+		{
+			vt100_clear_screen();
+			for (uint8_t index = 1; index < 80; index++)
+			{
+				vt100_move(index, 1);
+				serial_putchar(94);
+				vt100_move(index, 24);
+				serial_putchar(94);
+				vt100_move(1, index);
+				serial_putchar(124);
+				vt100_move(80, index);
+				serial_putchar(124);
+			}
+			vt100_move(37, 6);
+			serial_puts("TU AS PERDU");
+			vt100_move(34, 14);
+			serial_puts("Press any touch");
+			vt100_move(39, 12);
+			serial_puts("To RETRY");
+			while (serial_get_last_char() == -1)
+			{
+			}
+			return 0;
+		}
+		/* On test si l'un des monstres de la ligne 1 à la même ordonnée que notre vaisseau, si oui c'est la fin du jeu */
+		else if (pointeur->ligne1[i][1] == pointeur->barre[1] && pointeur->ligne1[i][2] == 1)
+		{
+			vt100_clear_screen();
+			for (uint8_t index = 1; index < 80; index++)
+			{
+				vt100_move(index, 1);
+				serial_putchar(94);
+				vt100_move(index, 24);
+				serial_putchar(94);
+				vt100_move(1, index);
+				serial_putchar(124);
+				vt100_move(80, index);
+				serial_putchar(124);
+			}
+			vt100_move(37, 6);
+			serial_puts("TU AS PERDU");
+			vt100_move(34, 14);
+			serial_puts("Press any touch");
+			vt100_move(39, 12);
+			serial_puts("To RETRY");
+			while (serial_get_last_char() == -1)
+			{
+			}
+			return 0;
+		}
 	}
 }
