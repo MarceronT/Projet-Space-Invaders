@@ -219,7 +219,7 @@ uint8_t life(void)
 			serial_putchar(124);
 		}
 		vt100_move(35, 6);
-		serial_puts("TU AS PERDU");
+		serial_puts("YOU HAVE LOST ...");
 		vt100_move(32, 14);
 		serial_puts("Press any touch");
 		vt100_move(36, 12);
@@ -237,107 +237,107 @@ void score(void)
 	/* Dès qu'un monstre meurt on ajoute 10 au score */
 	if (pointeur->fin[0] == 0 && val_score == 0){
 		val_score = 1;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 0");
 	}
 	else if (pointeur->fin[0] == 1 && val_score == 1){
 		val_score = 2;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 10");
 	}
 	else if (pointeur->fin[0] == 2 && val_score == 2){
 		val_score = 3;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 20");
 	}
 	else if (pointeur->fin[0] == 3 && val_score == 3){
 		val_score = 4;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 30");
 	}
 	else if (pointeur->fin[0] == 4 && val_score == 4){
 		val_score = 5;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 40");
 	}
 	else if (pointeur->fin[0] == 5 && val_score == 5){
 		val_score = 6;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 50");
 	}
 	else if (pointeur->fin[0] == 6 && val_score == 6){
 		val_score = 7;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 60");
 	}
 	else if (pointeur->fin[0] == 7 && val_score == 7){
 		val_score = 8;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 70");
 	}
 	else if (pointeur->fin[0] == 8 && val_score == 8){
 		val_score = 9;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 80");
 	}
 	else if (pointeur->fin[0] == 9 && val_score == 9){
 		val_score = 10;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 90");
 	}
 	else if (pointeur->fin[0] == 10 && val_score == 10){
 		val_score = 11;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 100");
 	}
 	else if (pointeur->fin[0] == 11 && val_score == 11){
 		val_score = 12;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 110");
 	}
 	else if (pointeur->fin[0] == 12 && val_score == 12){
 		val_score = 13;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 120");
 	}
 	else if (pointeur->fin[0] == 13 && val_score == 13){
 		val_score = 14;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 130");
 	}
 	else if (pointeur->fin[0] == 14 && val_score == 14){
 		val_score = 15;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 140");
 	}
 	else if (pointeur->fin[0] == 15 && val_score == 15){
 		val_score = 16;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 150");
 	}
 	else if (pointeur->fin[0] == 16 && val_score == 16){
 		val_score = 17;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 160");
 	}
 	else if (pointeur->fin[0] == 17 && val_score == 17){
 		val_score = 18;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 170");
 	}
 	else if (pointeur->fin[0] == 18 && val_score == 18){
 		val_score = 19;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 180");
 	}
 	else if (pointeur->fin[0] == 19 && val_score == 19){
 		val_score = 20;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 190");
 	}
 	else if (pointeur->fin[0] == 20 && val_score == 20){
 		val_score = 0;
-		vt100_move(1, 23);
+		vt100_move(2, 23);
 		serial_puts("Score: 200");
 	}
 }
@@ -1023,7 +1023,7 @@ uint8_t end(void)
 			serial_putchar(124);
 		}
 		vt100_move(37, 6);
-		serial_puts("TU AS GAGNE");
+		serial_puts("YOU HAVE WIN !");
 		vt100_move(34, 14);
 		serial_puts("Press any touch");
 		vt100_move(39, 12);
@@ -1054,7 +1054,7 @@ uint8_t end_2 (void)
 				serial_putchar(124);
 			}
 			vt100_move(37, 6);
-			serial_puts("TU AS PERDU");
+			serial_puts("YOU HAVE LOST ...");
 			vt100_move(34, 14);
 			serial_puts("Press any touch");
 			vt100_move(39, 12);
@@ -1080,7 +1080,7 @@ uint8_t end_2 (void)
 				serial_putchar(124);
 			}
 			vt100_move(37, 6);
-			serial_puts("TU AS PERDU");
+			serial_puts("YOU HAVE LOST ...");
 			vt100_move(34, 14);
 			serial_puts("Press any touch");
 			vt100_move(39, 12);
@@ -1106,7 +1106,7 @@ uint8_t end_2 (void)
 				serial_putchar(124);
 			}
 			vt100_move(37, 6);
-			serial_puts("TU AS PERDU");
+			serial_puts("YOU HAVE LOST ...");
 			vt100_move(34, 14);
 			serial_puts("Press any touch");
 			vt100_move(39, 12);
